@@ -43,8 +43,8 @@ def makeRay(position = Vector(0, 0, 0),
     Ray.RayViewProvider(fp.ViewObject)
     recompute()
     return fp
-    
-    
+
+
 def makeSunRay(position = Vector(0, 0, 0),
             direction = Vector(1, 0, 0),
             power = True,
@@ -71,21 +71,21 @@ def makeSunRay(position = Vector(0, 0, 0),
     group = doc.addObject('App::DocumentObjectGroup','SunRay')
     group.Group = rays
     recompute()
-    
+
 
 def restartAll():
     for obj in activeDocument().Objects:
         if isRay(obj):
             obj.Power = True
             obj.touch()
-    
+
     recompute()
 
 def allOff():
     for obj in activeDocument().Objects:
         if isRay(obj):
             obj.Power = False
-            
+
     recompute()
 
 def makeMirror(base = []):
@@ -111,6 +111,15 @@ def makeLens(base = [], RefractionIndex = 0, material = 'Quartz'):
     '''All FreeCAD objects in base will be optical lenses.'''
     fp = activeDocument().addObject('Part::FeaturePython', 'Lens')
     OpticalObject.LensWorker(fp, base, RefractionIndex, material)
+    OpticalObject.OpticalObjectViewProvider(fp.ViewObject)
+    recompute()
+    return fp
+
+def make_theory_Lens(base = [], focallength = 50, material = 'None'):
+    reload(OpticalObject)
+    '''All FreeCAD objects in base will be optical lenses.'''
+    fp = activeDocument().addObject('Part::FeaturePython', 'Lens_Theory')
+    OpticalObject.TheoryLensWorker(fp, base, focallength)
     OpticalObject.OpticalObjectViewProvider(fp.ViewObject)
     recompute()
     return fp

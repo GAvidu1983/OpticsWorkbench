@@ -69,6 +69,11 @@ The FreeCAD objects in parameter Base will act as lenses
 Select some FreeCAD objects, then create Optical Lens  
 The Refration Index has to be provided. The parameter Material contains a list with pre defined refraction indexes.
 
+### ![Theoretical Lens](./icons/lens_theory.svg) Theoretical Lens
+The FreeCAD objects in parameter Base will act as theoretical lenses  
+Create a disk object acting as a theoretical lens. Choose diameter and focal length in
+parameters. The lens can be refractive or diffractive.
+
 ### ![Off](./icons/Anonymous_Lightbulb_Off.svg) Switch off lights
 Switches off all Rays and Beams
 
