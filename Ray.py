@@ -7,7 +7,7 @@ __doc__ = 'A single ray for raytracing'
 
 import os
 import FreeCADGui as Gui
-from FreeCAD import Vector, Rotation, activeDocument
+from FreeCAD import Vector, Rotation, activeDocument,Matrix
 import Part
 import math
 import traceback
@@ -219,6 +219,9 @@ class RayWorker:
             if nearest_obj.OpticalType == 'mirror':
                 dNewRay = self.mirror(dRay, normal)
 
+            elif nearest_obj.OpticalType == 'lens_theory':
+                dNewRay = self.thinlens(dRay, normal,nearest_obj.FocalLength)
+
             elif nearest_obj.OpticalType == 'lens':
                 if len(nearest_obj.Sellmeier) == 6:
                     n = OpticalObject.refraction_index_from_sellmeier(fp.Wavelength, nearest_obj.Sellmeier)
@@ -237,8 +240,7 @@ class RayWorker:
 
             else: return
 
-            if nearest_obj.OpticalType == 'lens_theory':
-                dNewRay = self.mirror(dRay, normal)
+
 
             newline = Part.makeLine(neworigin, neworigin - dNewRay * fp.MaxRayLength / dNewRay.Length)
             linearray.append(newline)
@@ -270,6 +272,14 @@ class RayWorker:
 
     def mirror(self, dRay, normal):
         return 2 * normal * (dRay * normal) - dRay
+
+
+    def thinlens(self, dRay, normal,F):
+
+        MT = Matrix(1,0,0,0,-1/F,1,0,0,0,0,1,0,0,0,0,1)
+
+        print(MT*dRay)
+        return MT*dRay
 
 
     def snellsLaw(self, ray, n1, n2, normal):

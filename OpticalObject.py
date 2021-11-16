@@ -148,6 +148,9 @@ class OpticalObjectViewProvider:
         if self.Object.OpticalType == 'absorber':
             return os.path.join(_icondir_, 'absorber.svg')
 
+        if self.Object.OpticalType == 'lens_theory':
+            return os.path.join(_icondir_, 'lens_theory.svg')
+
         return os.path.join(_icondir_, 'lens.svg')
 
     def attach(self, vobj):
