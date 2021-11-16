@@ -20,7 +20,7 @@ _icondir_ = os.path.join(os.path.dirname(__file__), 'icons')
 
 INFINITY = 1677216
 EPSILON = 1/INFINITY
-    
+
 
 
 
@@ -33,7 +33,7 @@ class RayWorker:
                  beamNrRows = 1,
                  beamDistance = 0.1,
                  hideFirst=False,
-                 maxRayLength = 1000000,
+                 maxRayLength = 1000,
                  maxNrReflections = 200,
                  wavelength = 580):
         fp.addProperty('App::PropertyBool', 'Spherical', 'Ray',  'False=Beam in one direction, True=Radial or spherical rays').Spherical = spherical
@@ -44,7 +44,7 @@ class RayWorker:
         fp.addProperty('App::PropertyBool', 'HideFirstPart', 'Ray',  'hide the first part of every ray').HideFirstPart = hideFirst
         fp.addProperty('App::PropertyFloat', 'MaxRayLength', 'Ray',  'maximum length of a ray').MaxRayLength = maxRayLength
         fp.addProperty('App::PropertyFloat', 'MaxNrReflections', 'Ray',  'maximum number of reflections').MaxNrReflections = maxNrReflections
-        fp.addProperty('App::PropertyFloat', 'Wavelength', 'Ray',  'Wavelength of the ray in nm').Wavelength = wavelength        
+        fp.addProperty('App::PropertyFloat', 'Wavelength', 'Ray',  'Wavelength of the ray in nm').Wavelength = wavelength
 
         fp.Proxy = self
         self.lastRefIdx = 1
@@ -57,7 +57,7 @@ class RayWorker:
     def onChanged(self, fp, prop):
         '''Do something when a property has changed'''
         if not hasattr(fp, 'iter'): return
-        
+
         proplist = ['Spherical', 'Power', 'HideFirstPart', 'BeamNrColumns', 'BeamNrRows', 'BeamDistance', 'MaxRayLength', 'MaxNrReflections', 'Wavelength']
         if prop in proplist:
             self.redrawRay(fp)
@@ -119,10 +119,10 @@ class RayWorker:
                 rgb = wavelen2rgb(fp.Wavelength)
             except ValueError:
                 # set color to white if outside of visible range
-                rgb = (255, 255, 255)  
+                rgb = (255, 255, 255)
             r = rgb[0] / 255.0
             g = rgb[1] / 255.0
-            b = rgb[2] / 255.0 
+            b = rgb[2] / 255.0
             fp.ViewObject.LineColor = (float(r), float(g), float(b), (0.0))
 
         fp.ViewObject.Transparency = 50
@@ -215,13 +215,13 @@ class RayWorker:
             if normal.Length == 0:
                 print('Cannot determine the normal on ' + nearest_obj.Label)
                 return
-                    
-            if nearest_obj.OpticalType == 'mirror':      
-                dNewRay = self.mirror(dRay, normal)   
-                                                
-            elif nearest_obj.OpticalType == 'lens':  
+
+            if nearest_obj.OpticalType == 'mirror':
+                dNewRay = self.mirror(dRay, normal)
+
+            elif nearest_obj.OpticalType == 'lens':
                 if len(nearest_obj.Sellmeier) == 6:
-                    n = OpticalObject.refraction_index_from_sellmeier(fp.Wavelength, nearest_obj.Sellmeier)                           
+                    n = OpticalObject.refraction_index_from_sellmeier(fp.Wavelength, nearest_obj.Sellmeier)
                 else:
                     n = nearest_obj.RefractionIndex
 
@@ -231,11 +231,14 @@ class RayWorker:
                 else:
                     oldRefIdx = self.lastRefIdx
                     newRefIdx = n
-                      
+
                 ray1 = dRay / dRay.Length
                 dNewRay = self.snellsLaw(ray1, oldRefIdx, newRefIdx, normal)
 
             else: return
+
+            if nearest_obj.OpticalType == 'lens_theory':
+                dNewRay = self.mirror(dRay, normal)
 
             newline = Part.makeLine(neworigin, neworigin - dNewRay * fp.MaxRayLength / dNewRay.Length)
             linearray.append(newline)
@@ -291,7 +294,7 @@ class RayWorker:
 
     def isInsidePart(self, part, vertex):
         return part.Shape.distToShape(Part.Vertex(vertex))[0] < EPSILON
-        
+
     def isInsideLens(self, vertex):
         ret = []
         for optobj in activeDocument().Objects:
@@ -301,7 +304,7 @@ class RayWorker:
                         ret.append(optobj)
 
         return ret
-        
+
 
 
 def PointVec(point):
