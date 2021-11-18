@@ -276,10 +276,26 @@ class RayWorker:
 
     def thinlens(self, dRay, normal,F):
 
-        MT = Matrix(1,0,0,0,-1/F,1,0,0,0,0,1,0,0,0,0,1)
+        theta0 = dRay.getAngle(normal)
+        y0 = 10  # must depend of impact point and center of lens, to be defined
 
-        print(MT*dRay)
-        return MT*dRay
+        theta1 = theta0 - y0 / F
+
+        theta_total = theta1 - theta0
+
+        th = theta_total
+
+        m00 = math.cos(th)
+        m01 = -math.sin(th)
+        m10 = math.sin(th)
+        m11 = math.cos(th)
+
+        RotMat2D = Matrix(m00,m01,0,0,m10,m11,0,0,0,0,0,0,0,0,0,0)  #2D at the moment just for test, then must be RxRyRz something
+
+        Res = -RotMat2D.multiply(dRay)
+
+
+        return Res
 
 
     def snellsLaw(self, ray, n1, n2, normal):
